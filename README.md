@@ -108,4 +108,46 @@ and collections for applications and articles.
 
 Create Custom Login Page
 
+1. Create a login.html file in home/templates directory
+2. Copy and paste over USWDS authentication template from website
+3. Change the fields to match Django authentication fields (i.e username and password from email password)
+4. Add the Wagtail authentication function to the form:
+   * `<form class="usa-form" method="post" action="{% url 'wagtailcore_login' %}">` - This tells the site to call the
+   login URL
+5. Add the CSRF tag
+   * `{% csrf_token %}`
+6. Add SSO URL from mozilla-django-oidc
+   * `<a class="usa-button usa-button--outline" href="{% url 'oidc_authentication_init' %}">Launch secondary SSO</a>`
+   This calls the authentication function from our secondary authentication backend
+7. Add the following variables to your settings file:
 
+```
+WAGTAIL_FRONTEND_LOGIN_TEMPLATE = 'home/login.html'
+LOGIN_URL = '/'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+CSRF_TRUSTED_ORIGINS = ['http://localhost']
+AUTHENTICATION_BACKENDS = (
+    'mozilla_django_oidc.auth.OIDCAuthenticationBackend',
+    'django.contrib.auth.backends.ModelBackend',
+)
+OIDC_RP_CLIENT_ID = ''
+OIDC_RP_CLIENT_SECRET = ''
+OIDC_OP_AUTHORIZATION_ENDPOINT = ''
+OIDC_OP_TOKEN_ENDPOINT = ''
+OIDC_OP_JWKS_ENDPOINT = ''
+OIDC_OP_USER_ENDPOINT = ''
+OIDC_VERIFY_SSL = False
+OIDC_RP_SCOPES = 'openid'
+OIDC_RP_SIGN_ALGO = 'RS256'
+```
+These variables are for SSO and telling where to redirect users to login, upon login, and upon logout. Also, what our
+authentication backends are. The system will use both Django's authentication backend and the SSO authentication backend.
+
+Adding Applications
+
+To create an application, API, or new page we first have to create an new Django application.  We do this by running the following command:
+1. `python manage.py startapp application`
+2. Adding the application to the INSTALLED_APPS variable in settings file, in our case the name is "applications"
+
+From here you would develop out the applications page, model, and templates.
