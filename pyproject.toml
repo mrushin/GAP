@@ -1,0 +1,20 @@
+[build-system]
+build-backend = "poetry.masonry.api"
+requires = ["poetry>=0.12"]
+
+[tool]
+[tool.poetry]
+authors = ["mrushin"]
+description = "GAP"
+name = "wagtail-template"
+version = "0.1.0"
+[tool.poetry.dependencies]
+Django = "^4.0"
+python = "^3.10"
+# django-crispy-forms = "^1.13.0"
+mozilla-django-oidc = "^2.0.0"
+wagtail = "^3.0"
+django-environ = "^0.8.1"
+psycopg2 = "^2.9.3"
+django-import-export = "^2.8.0"
+[tool.poetry.dev-dependencies]

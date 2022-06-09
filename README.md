@@ -2,9 +2,9 @@
 
 GAP
 
-Recreation Steps
+## Recreation Steps
 
-Setting Up Django & Wagtail
+### Setting Up Django & Wagtail
 
 1. Create a folder called "GAP"
 2. Inside GAP/ create a new Python virtual environment (i.e. venv should most likely be the name)
@@ -30,7 +30,7 @@ Setting Up NPM
     * JQuery - `npm install --prefix=GAP/static --save jquery`
     * USWDS - `npm install --prefix=GAP/static --save uswds`
 
-Adding Third Party Support Libraries
+### Adding Third Party Support Libraries
 
 1. Install the Python libraries in your virtual environment
     * `pip install mozilla-django-oidc`
@@ -42,7 +42,28 @@ Adding Third Party Support Libraries
 3. Save your requirements.txt:
    `pip freeze > requirements.txt` - This should have all the libraries and any others you want now
 
-Creating Custom UI/UX
+#### Alternatively install deps with pyenv and poetry
+1. Install pyenv and desired version of python
+   ```
+   # MacOS instructions
+   brew install pyenv poetry
+   pyenv init # add snippet to your *shrc and restart shell
+   pyenv install 3.10.4 # or whatever version you want
+   pyenv local 3.10.4 # now you're using python 3.10.4
+   ```
+2. Use poetry's `pyproject.toml` (and/or `poetry.lock`) to install deps and create a virtualenv like wagtail-template-ziKsGQp0-py3.10
+   ```
+   poetry install
+   poetry shell # starts up the virtualenv
+   ```
+   Add more deps with
+   ```
+   poetry add lib # same as pip install, all deps stored in the pyproject.toml
+   poetry show    # same as pip freeze
+   ```
+3. In the poetry shell, run python commands as desired, i.e. `python manage runserver` or `pip freeze` 
+
+## Creating Custom UI/UX
 
 Wagtail comes with a default "home" application when we created the Wagtail project. Inside that "home" folder you will
 find the following files and directories:
@@ -106,7 +127,7 @@ Once this is set up you can copy over the templates https://designsystem.digital
 you want.  For example, the landing page template was used for the home page. Other components can be used such as cards
 and collections for applications and articles. 
 
-Create Custom Login Page
+## Create Custom Login Page
 
 1. Create a login.html file in home/templates directory
 2. Copy and paste over USWDS authentication template from website
