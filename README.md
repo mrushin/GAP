@@ -55,6 +55,8 @@ Setting Up NPM
    ```
    poetry install
    poetry shell # starts up the virtualenv
+
+   exit # as normal to exit poetry shell
    ```
    Add more deps with
    ```
@@ -140,32 +142,48 @@ and collections for applications and articles.
 6. Add SSO URL from mozilla-django-oidc
    * `<a class="usa-button usa-button--outline" href="{% url 'oidc_authentication_init' %}">Launch secondary SSO</a>`
    This calls the authentication function from our secondary authentication backend
-7. Add the following variables to your settings file:
+7. Add the following variables to your settings file.  These variables are for SSO and telling where to redirect users to login, upon login, and upon logout. Also, what our authentication backends are. The system will use both Django's authentication backend and the SSO authentication backend.
+   ```
+   WAGTAIL_FRONTEND_LOGIN_TEMPLATE = 'home/login.html'
+   LOGIN_URL = '/'
+   LOGIN_REDIRECT_URL = '/'
+   LOGOUT_REDIRECT_URL = '/'
+   CSRF_TRUSTED_ORIGINS = ['http://localhost']
+   AUTHENTICATION_BACKENDS = (
+      'mozilla_django_oidc.auth.OIDCAuthenticationBackend',
+      'django.contrib.auth.backends.ModelBackend',
+   )
+   OIDC_RP_CLIENT_ID = ''
+   OIDC_RP_CLIENT_SECRET = ''
+   OIDC_OP_AUTHORIZATION_ENDPOINT = ''
+   OIDC_OP_TOKEN_ENDPOINT = ''
+   OIDC_OP_JWKS_ENDPOINT = ''
+   OIDC_OP_USER_ENDPOINT = ''
+   OIDC_VERIFY_SSL = False
+   OIDC_RP_SCOPES = 'openid'
+   OIDC_RP_SIGN_ALGO = 'RS256'
+   ```
+   
+   If you're using the GAP Boilerplate Project (https://discourse.tools.jadeuc.com/t/getting-started-with-the-gap-boilerplate-app/138) docker-compose dev setup, these values work with the built-in Keycloak server, client, and users. 
 
-```
-WAGTAIL_FRONTEND_LOGIN_TEMPLATE = 'home/login.html'
-LOGIN_URL = '/'
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
-CSRF_TRUSTED_ORIGINS = ['http://localhost']
-AUTHENTICATION_BACKENDS = (
-    'mozilla_django_oidc.auth.OIDCAuthenticationBackend',
-    'django.contrib.auth.backends.ModelBackend',
-)
-OIDC_RP_CLIENT_ID = ''
-OIDC_RP_CLIENT_SECRET = ''
-OIDC_OP_AUTHORIZATION_ENDPOINT = ''
-OIDC_OP_TOKEN_ENDPOINT = ''
-OIDC_OP_JWKS_ENDPOINT = ''
-OIDC_OP_USER_ENDPOINT = ''
-OIDC_VERIFY_SSL = False
-OIDC_RP_SCOPES = 'openid'
-OIDC_RP_SIGN_ALGO = 'RS256'
-```
-These variables are for SSO and telling where to redirect users to login, upon login, and upon logout. Also, what our
-authentication backends are. The system will use both Django's authentication backend and the SSO authentication backend.
+   Use `docker-compose up -d keycloak` to run just the KC container and use the KC user credentials `user1 | user1`
 
-Adding Applications
+   ```
+   OIDC_RP_CLIENT_ID = 'client4'
+   OIDC_RP_CLIENT_SECRET = 'da09e8f0-fdc6-11ea-adc1-0242ac120002'
+   OIDC_AUTH_URI = 'http://host.docker.internal:8080/realms/default'
+   OIDC_OP_AUTHORIZATION_ENDPOINT = OIDC_AUTH_URI + '/protocol/openid-connect/auth'
+   OIDC_OP_TOKEN_ENDPOINT = OIDC_AUTH_URI + '/protocol/openid-connect/token'
+   OIDC_OP_USER_ENDPOINT = OIDC_AUTH_URI + '/protocol/openid-connect/userinfo'
+   OIDC_OP_JWKS_ENDPOINT = OIDC_AUTH_URI + '/protocol/openid-connect/certs'
+
+   OIDC_VERIFY_SSL = False
+   OIDC_RP_SCOPES = 'openid'
+   OIDC_RP_SIGN_ALGO = 'RS256'
+   ```
+
+
+## Adding Applications
 
 To create an application, API, or new page we first have to create an new Django application.  We do this by running the following command:
 1. `python manage.py startapp application`
