@@ -2,9 +2,9 @@
 
 GAP
 
-Recreation Steps
+## Recreation Steps
 
-Setting Up Django & Wagtail
+### Setting Up Django & Wagtail
 
 1. Create a folder called "GAP"
 2. Inside GAP/ create a new Python virtual environment (i.e. venv should most likely be the name)
@@ -30,7 +30,7 @@ Setting Up NPM
     * JQuery - `npm install --prefix=GAP/static --save jquery`
     * USWDS - `npm install --prefix=GAP/static --save uswds`
 
-Adding Third Party Support Libraries
+### Adding Third Party Support Libraries
 
 1. Install the Python libraries in your virtual environment
     * `pip install mozilla-django-oidc`
@@ -42,7 +42,30 @@ Adding Third Party Support Libraries
 3. Save your requirements.txt:
    `pip freeze > requirements.txt` - This should have all the libraries and any others you want now
 
-Creating Custom UI/UX
+#### Alternatively install deps with pyenv and poetry
+1. Install pyenv and desired version of python
+   ```
+   # MacOS instructions
+   brew install pyenv poetry
+   pyenv init # add snippet to your *shrc and restart shell
+   pyenv install 3.10.4 # or whatever version you want
+   pyenv local 3.10.4 # now you're using python 3.10.4
+   ```
+2. Use poetry's `pyproject.toml` (and/or `poetry.lock`) to install deps and create a virtualenv like wagtail-template-ziKsGQp0-py3.10
+   ```
+   poetry install
+   poetry shell # starts up the virtualenv
+
+   exit # as normal to exit poetry shell
+   ```
+   Add more deps with
+   ```
+   poetry add lib # same as pip install, all deps stored in the pyproject.toml
+   poetry show    # same as pip freeze
+   ```
+3. In the poetry shell, run python commands as desired, i.e. `python manage runserver` or `pip freeze` 
+
+## Creating Custom UI/UX
 
 Wagtail comes with a default "home" application when we created the Wagtail project. Inside that "home" folder you will
 find the following files and directories:
@@ -106,7 +129,7 @@ Once this is set up you can copy over the templates https://designsystem.digital
 you want.  For example, the landing page template was used for the home page. Other components can be used such as cards
 and collections for applications and articles. 
 
-Create Custom Login Page
+## Create Custom Login Page
 
 1. Create a login.html file in home/templates directory
 2. Copy and paste over USWDS authentication template from website
@@ -119,32 +142,48 @@ Create Custom Login Page
 6. Add SSO URL from mozilla-django-oidc
    * `<a class="usa-button usa-button--outline" href="{% url 'oidc_authentication_init' %}">Launch secondary SSO</a>`
    This calls the authentication function from our secondary authentication backend
-7. Add the following variables to your settings file:
+7. Add the following variables to your settings file.  These variables are for SSO and telling where to redirect users to login, upon login, and upon logout. Also, what our authentication backends are. The system will use both Django's authentication backend and the SSO authentication backend.
+   ```
+   WAGTAIL_FRONTEND_LOGIN_TEMPLATE = 'home/login.html'
+   LOGIN_URL = '/'
+   LOGIN_REDIRECT_URL = '/'
+   LOGOUT_REDIRECT_URL = '/'
+   CSRF_TRUSTED_ORIGINS = ['http://localhost']
+   AUTHENTICATION_BACKENDS = (
+      'mozilla_django_oidc.auth.OIDCAuthenticationBackend',
+      'django.contrib.auth.backends.ModelBackend',
+   )
+   OIDC_RP_CLIENT_ID = ''
+   OIDC_RP_CLIENT_SECRET = ''
+   OIDC_OP_AUTHORIZATION_ENDPOINT = ''
+   OIDC_OP_TOKEN_ENDPOINT = ''
+   OIDC_OP_JWKS_ENDPOINT = ''
+   OIDC_OP_USER_ENDPOINT = ''
+   OIDC_VERIFY_SSL = False
+   OIDC_RP_SCOPES = 'openid'
+   OIDC_RP_SIGN_ALGO = 'RS256'
+   ```
+   
+   If you're using the GAP Boilerplate Project (https://discourse.tools.jadeuc.com/t/getting-started-with-the-gap-boilerplate-app/138) docker-compose dev setup, these values work with the built-in Keycloak server, client, and users. 
 
-```
-WAGTAIL_FRONTEND_LOGIN_TEMPLATE = 'home/login.html'
-LOGIN_URL = '/'
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
-CSRF_TRUSTED_ORIGINS = ['http://localhost']
-AUTHENTICATION_BACKENDS = (
-    'mozilla_django_oidc.auth.OIDCAuthenticationBackend',
-    'django.contrib.auth.backends.ModelBackend',
-)
-OIDC_RP_CLIENT_ID = ''
-OIDC_RP_CLIENT_SECRET = ''
-OIDC_OP_AUTHORIZATION_ENDPOINT = ''
-OIDC_OP_TOKEN_ENDPOINT = ''
-OIDC_OP_JWKS_ENDPOINT = ''
-OIDC_OP_USER_ENDPOINT = ''
-OIDC_VERIFY_SSL = False
-OIDC_RP_SCOPES = 'openid'
-OIDC_RP_SIGN_ALGO = 'RS256'
-```
-These variables are for SSO and telling where to redirect users to login, upon login, and upon logout. Also, what our
-authentication backends are. The system will use both Django's authentication backend and the SSO authentication backend.
+   Use `docker-compose up -d keycloak` to run just the KC container and use the KC user credentials `user1 | user1`
 
-Adding Applications
+   ```
+   OIDC_RP_CLIENT_ID = 'client4'
+   OIDC_RP_CLIENT_SECRET = 'da09e8f0-fdc6-11ea-adc1-0242ac120002'
+   OIDC_AUTH_URI = 'http://host.docker.internal:8080/realms/default'
+   OIDC_OP_AUTHORIZATION_ENDPOINT = OIDC_AUTH_URI + '/protocol/openid-connect/auth'
+   OIDC_OP_TOKEN_ENDPOINT = OIDC_AUTH_URI + '/protocol/openid-connect/token'
+   OIDC_OP_USER_ENDPOINT = OIDC_AUTH_URI + '/protocol/openid-connect/userinfo'
+   OIDC_OP_JWKS_ENDPOINT = OIDC_AUTH_URI + '/protocol/openid-connect/certs'
+
+   OIDC_VERIFY_SSL = False
+   OIDC_RP_SCOPES = 'openid'
+   OIDC_RP_SIGN_ALGO = 'RS256'
+   ```
+
+
+## Adding Applications
 
 To create an application, API, or new page we first have to create an new Django application.  We do this by running the following command:
 1. `python manage.py startapp application`
